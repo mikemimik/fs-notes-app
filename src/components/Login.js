@@ -49,27 +49,6 @@ export default function SignInSide(props) {
   const [ password, updatePassword ] = useState('');
   const [ error, updateError ] = useState('');
 
-  const handleSubmit = async (e) => {
-    try {
-      e.preventDefault();
-      const response = await fetch('/api/users/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
-
-      props.getUser();
-    } catch (err) {
-      updateError(err.message);
-    }
-  };
-
   return (
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
