@@ -12,30 +12,7 @@ import SignUp from "./components/SignUp";
 
 function App() {
   const [user, updateUser] = useState(undefined);
-  async function getUser() {
-    try {
-      const response = await fetch("/api/users/me", {
-        headers: {
-          // by default this is set to 'same-origin' which will work in development
-          credentials: 'include',
-        },
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
-
-      updateUser(data.data);
-    } catch (err) {
-      console.log("error?");
-      updateUser(undefined);
-      console.log({ err });
-    }
-  }
-  useEffect(() => {
-    getUser();
-  }, []);
-
+  const getUser = () => {}
   return (
     <div className="App">
       <Router>

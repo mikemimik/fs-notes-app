@@ -38,47 +38,9 @@ export default function SignUp(props) {
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  async function signUpUser() {
-    try {
-      const body = {
-        email,
-        password,
-        firstName,
-        lastName,
-      };
-      const response = await fetch('/api/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message);
-      }
-      const loginResponse = await fetch('/api/users/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-      if (!loginResponse.ok) {
-        throw new Error(data.message);
-      }
 
-      props.getUser();
-    } catch (err) {
-      console.log('error?');
-      props.updateUser(undefined);
-      console.log({ err });
-    }
-  }
   const handleSubmit = (e) => {
     e.preventDefault();
-    signUpUser();
-    
   }
   return (
     <Container component="main" maxWidth="xs">

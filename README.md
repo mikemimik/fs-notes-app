@@ -247,14 +247,18 @@ router.route('/login')
       }
 
       const token = createToken({ id: user._id });
-
-      res.json({ data: { token } });
+      // save token in the cookie
+      res.cookies('token', token);
+      // send an empty response back
+      res.status(200).send({});
     } catch (ex) {
       console.log(ex);
       res.status(500).json({ message: 'internal server error' });
     }
   });
 ```
+
+In the above code, we have created a token and then saved this token into a *cookie*. Cookies represent small pieces of data that we can add to user’s web browsers, either through Front End means or from Back End servers. Cookies are key-value stores, so can only store small amounts of data. They are stored in the browser and attached to requests made to the server. This means our client does not have to do any work to store or update this token because the browser will take care of storing the cookie it receives for the client.
 
 ## Get user
 Great, we now have the ability for our users to be created and logged in. Finally, we need to create a route that will allow the client to get information about the user that is logged in. The client will provide a token, the server will take that token, generate a signature based on the information in the token and if that signature matches the signature on the provided token, it will use the user ID saved in the token to retrieve information on the corresponding user.
@@ -306,16 +310,18 @@ const { createToken, verifyToken } = require('../../tokens/tokenService');
   router
     .route('/me')
     .get(async (req, res) => {
-        const { headers } = req;
+
+        const { cookies } = req;
         try {
-            if(!headers.authorization) {
+            if(!cookies || !cookies.token) {
                 res.status(403).json({ message: 'authorization required '});
                 return;
             }
-        const token = headers.authorization.split(' ')[1];
-        const userToken = await verifyToken(token);
-        const user = await findUserByID(userToken.id);
-        res.json({ data: user });
+          const token = cookies.token;
+          const userToken = await verifyToken(token);
+          const user = await findUserByID(userToken.id);
+
+          res.json({ data: user });
       } catch(err) {
         console.log(err);
         res.status(500).json({ message: 'internal server error' });
@@ -324,3 +330,240 @@ const { createToken, verifyToken } = require('../../tokens/tokenService');
 ```
 
 Great! We now have the ability to create a user, log them in and provide information about them back to the front end when needed. 
+
+Some of the code included in this route that pertains to getting token information from the cookie is logic that we are going to reuse across many routes. Therefore, we are going to move it into a middleware function that we can implement on other routes!
+
+Remove the following code from the route we just created:
+```javaScript
+// userRoutes.js
+// Copy and remove the following code from the /me route:
+        const { cookies } = req;
+        try {
+            if(!cookies || !cookies.token) {
+                res.status(403).json({ message: 'authorization required '});
+                return;
+            }
+        const token = cookies.token;
+        const userToken = await verifyToken(token);
+```
+Ensure you replace the `try` block in the /me route as well as remove the reference to `userToken` which should be replaced by `req.user.id`, we will find out why in a second! This route should now look like this:
+```javaScript
+// userRoutes.js
+  router
+    .route('/me')
+    .get(async (req, res) => {
+      try {
+        const user = await findUserByID(req.user.id);
+        res.json({ data: user });
+      } catch(err) {
+        console.log(err);
+        res.status(500).json({ message: 'internal server error' });
+      }
+  });
+```
+
+## Create user middleware
+We will now create middleware which will first access the token stored in the cookie and check to ensure it is a valid token. It will then attach the decoded information from the token onto the request object so that all subsequent functions that deal with that request object can access it. In this way we can use this middleware to ensure that a user is logged in. Without calling the `/login` route, a client will not have a valid token in their cookie with which to make requests.
+
+```javaScript
+// middleware/verifyToken.js
+const { verifyToken } = require('../tokens/tokenService');
+
+exports.verifyToken = async (req, res, next) => {
+  const { cookies } = req;
+  try {
+    if(!cookies || !cookies.token) {
+      res.status(403).json({ message: 'authorization required '});
+      return;
+    }
+    const token = cookies.token;
+
+    const user = await verifyToken(token);
+    req.user = user;
+    next();
+  } catch(err) {
+    console.log(err, 'error?');
+    res.status(403).json({ message: 'invalid or expired token' });
+  }
+};
+
+```
+
+Now we need to use the middleware on the routes we want to ensure a user is logged in to access.
+
+```javaScript
+//userRoutes.js
+const { verifyToken } = require('../../middleware/verifyToken');
+//...
+  router
+    .use(verifyToken)
+    .route('/me')
+```
+
+We are accessing the value attached to the request object when we call `findUserByID` in this route.
+
+## Edit note routes
+Now we can use the user middleware we have setup in the notes routes in order to save notes for a specific user. We will add the middleware in a way that means that all routes created on the notes router will have access to the `req.user` properties along as the client passes a cookie!
+
+```javaScript
+//notesRoutes.js
+const { verifyToken } = require('../../middleware/verifyToken');
+//...
+
+const router = express.Router();
+// middleware
+router.use(verifyToken);
+router.route('/')
+```
+
+Let's use the new `req.user` object in a couple of the routes.
+
+In the `get` request:
+```javaScript
+// notesRoutes.js
+  .get(async (req, res) => {
+    const { user } = req;
+    try {
+      const notes = await getNotesByUser(user.id);
+      res.json({ data: notes });
+    //....
+```
+
+In the `post` request:
+```javaScript
+//notesRoutes.js
+  .post(async (req, res) => {
+    try {
+      const { body } = req;
+      if (!body.text || body.text === '') {
+        res.status(400).json({ message: 'text must be provided' });
+      }
+      const newNote = {
+        user: req.user.id,
+        text: body.text,
+      }
+      //.....
+```
+
+In the `put` request:
+```javaScript
+  .put(async (req, res) => {
+    try {
+      const { body, params, user } = req;
+      if (!body.text || body.text === '') {
+        res.status(400).json({ message: 'text must be provided' });
+      }
+
+      const newNote = await updateNoteById({
+        text: body.text,
+        id: params.id,
+        user: user.id,
+      });
+      //....
+```
+
+Great, now we should have our backend routes working with authenticated users and information being passed back to the client using cookies!
+
+## Update the front end code
+We can now create some front end logic to login in our users. We will first create a function that checks with the server to see if a user is already logged in. If no cookie exists in the browser for our app, this request will fail. If a cookie already exists, we will get information back about that user and store it in state.
+
+```javaScript
+// App.js
+  async function getUser() {
+    try {
+      const response = await fetch("/api/users/me");
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+
+      updateUser(data.data);
+    } catch (err) {
+      console.log("error?");
+      updateUser(undefined);
+      console.log({ err });
+    }
+  }
+  useEffect(() => {
+    getUser();
+  }, []);
+```
+
+There is logic that already exists in the `return` function of our app that handles routing for us. If a user exists, that user will be navigated to the `'/'` route of our front end and therefore allowed to their notes. Otherwise, the user is shown the login page by default.
+
+Create a `handleSubmit` function in the `Login` component. This will hit the login route we created with an email and password. If the email and password match a record in the database, the server will respond with a cookie. We do not have to write any code that expressly handles that cookie as modern browsers will store it for us and include it in most requests. 
+
+```javaScript
+//Login.js
+  const handleSubmit = async (e) => {
+    try {
+      e.preventDefault();
+      const response = await fetch('/api/users/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+
+      props.getUser();
+    } catch (err) {
+      updateError(err.message);
+    }
+  };
+```
+
+Finally, we will add similar logic to a `handleSubmit` function in the `SignUp` component:
+
+```javaScript
+//SignUp.js
+  async function signUpUser() {
+    try {
+      const body = {
+        email,
+        password,
+        firstName,
+        lastName,
+      };
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+      const loginResponse = await fetch('/api/users/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!loginResponse.ok) {
+        throw new Error(data.message);
+      }
+
+      props.getUser();
+    } catch (err) {
+      console.log('error?');
+      props.updateUser(undefined);
+      console.log({ err });
+    }
+  }
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    signUpUser();
+  }
+```
+
+That's it! No other changes to the front end are needed. Again, this is made very simple for us because of how the browser handles attaching cookies to `fetch` requests automatically for us if it finds a cookie for our site stored in the browser. 
+
+Phew! We've now created an authentication on for our server and front end.
