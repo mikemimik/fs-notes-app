@@ -1,15 +1,15 @@
 const { verifyToken } = require('../tokens/tokenService');
 
 exports.verifyToken = async (req, res, next) => {
-  const { headers } = req;
+  const { cookies } = req;
   try {
-    if(!headers.authorization) {
+    if(!cookies || !cookies.token) {
       res.status(403).json({ message: 'authorization required '});
       return;
     }
+    const token = cookies.token;
 
-    const token = headers.authorization.split(' ')[1];
-    const user = await verifyToken(token)
+    const user = await verifyToken(token);
     req.user = user;
     next();
   } catch(err) {

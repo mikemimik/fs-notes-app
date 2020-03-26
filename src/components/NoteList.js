@@ -6,7 +6,6 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 
 import NoteCard from './NoteCard';
-import { getToken } from '../utils/token';
 
 const useStyles = makeStyles(theme => ({
   heroContent: {
@@ -30,12 +29,7 @@ export default function NoteList(props) {
 
   async function getNotes() {
     try {
-      const token = getToken();
-      const response = await fetch('/api/notes', {
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch('/api/notes');
     
       const data = await response.json();
       updateNotes(data.data);

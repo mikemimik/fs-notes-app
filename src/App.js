@@ -6,7 +6,6 @@ import {
   Redirect
 } from "react-router-dom";
 
-import { getToken } from "./utils/token";
 import Login from "./components/Login";
 import Main from "./components/Main";
 import SignUp from "./components/SignUp";
@@ -15,18 +14,17 @@ function App() {
   const [user, updateUser] = useState(undefined);
   async function getUser() {
     try {
-      const token = getToken();
-      console.log(token, 'token?');
       const response = await fetch("/api/users/me", {
         headers: {
-          authorization: `Bearer ${token}`
-        }
+          // by default this is set to 'same-origin' which will work in development
+          credentials: 'include',
+        },
       });
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.message);
       }
-      console.log('how does this do stuff though?');
+
       updateUser(data.data);
     } catch (err) {
       console.log("error?");
