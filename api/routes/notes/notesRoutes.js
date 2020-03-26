@@ -1,5 +1,5 @@
 const express = require('express')
-const { getNotesByUser, createNote, getNoteById, updateNoteById } = require('./notesService');
+const { getNotesByUser, createNote, getNoteById, updateNoteById } = require('./notesController');
 const { verifyToken } = require('../../middleware/verifyToken');
 
 const router = express.Router();

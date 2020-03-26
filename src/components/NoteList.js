@@ -22,7 +22,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const cards = [1, 2, 3];
+// const cards = [1, 2, 3];
 
 export default function NoteList(props) {
   const classes = useStyles();

@@ -1,5 +1,5 @@
 const express = require('express');
-const { createUser, findUserByEmail, findUserByID } = require('./userService');
+const { createUser, findUserByEmail, findUserByID } = require('./userController');
 const { createToken } = require('../../tokens/tokenService');
 const { verifyToken } = require('../../middleware/verifyToken');
 
@@ -7,6 +7,7 @@ const router = express.Router();
 
 router.route('/')
   .post(async (req, res) => {
+    console.log(req.body);
     const { email, password, firstName, lastName } = req.body;
     if (!email || email === "") {
       res.status(400).json({ message: 'email must be provided' });
