@@ -64,7 +64,7 @@ export default function SignUp(props) {
         },
         body: JSON.stringify({ email, password }),
       });
-      if (!response.ok) {
+      if (!loginResponse.ok) {
         throw new Error(data.message);
       }
 
