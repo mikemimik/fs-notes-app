@@ -12,8 +12,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { Link } from 'react-router-dom';
 
-import { setToken } from '../utils/token';
-
 const useStyles = makeStyles(theme => ({
   paper: {
     marginTop: theme.spacing(8),
@@ -48,7 +46,6 @@ export default function SignUp(props) {
         firstName,
         lastName,
       };
-      console.log(body, 'body?');
       const response = await fetch('/api/users', {
         method: 'POST',
         headers: {
@@ -67,12 +64,10 @@ export default function SignUp(props) {
         },
         body: JSON.stringify({ email, password }),
       });
-      const loginData = await loginResponse.json();
       if (!response.ok) {
         throw new Error(data.message);
       }
 
-      setToken(loginData.data.token);
       props.getUser();
     } catch (err) {
       console.log('error?');

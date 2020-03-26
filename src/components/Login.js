@@ -12,8 +12,6 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router-dom';
 
-import { setToken } from '../utils/token';
-
 const useStyles = makeStyles(theme => ({
   root: {
     height: '100vh',
@@ -66,7 +64,6 @@ export default function SignInSide(props) {
         throw new Error(data.message);
       }
 
-      setToken(data.data.token);
       props.getUser();
     } catch (err) {
       updateError(err.message);

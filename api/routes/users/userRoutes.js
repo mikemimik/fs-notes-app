@@ -7,7 +7,6 @@ const router = express.Router();
 
 router.route('/')
   .post(async (req, res) => {
-    console.log(req.body);
     const { email, password, firstName, lastName } = req.body;
     if (!email || email === "") {
       res.status(400).json({ message: 'email must be provided' });
@@ -74,8 +73,8 @@ router.route('/login')
       }
 
       const token = createToken({ id: user._id });
-
-      res.json({ data: { token } });
+      res.cookie('token', token);
+      res.status(200).json({});
     } catch (ex) {
       console.log(ex);
       res.status(500).json({ message: 'internal server error' });

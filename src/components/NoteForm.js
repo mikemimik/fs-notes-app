@@ -5,8 +5,6 @@ import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles'
 
-import { getToken } from '../utils/token';
-
 const useStyles = makeStyles(theme => ({
   content: {
     padding: theme.spacing(8, 0, 6),
@@ -28,12 +26,7 @@ export default function NoteForm (props) {
 
   async function getNoteById(id) {
     try {
-      const token = getToken();
-      const response = await fetch(`/api/notes/${id}`, {
-        headers: {
-          authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(`/api/notes/${id}`);
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.message);
@@ -52,7 +45,6 @@ export default function NoteForm (props) {
   async function handleSubmit(e) {
     try {
       e.preventDefault();
-      const token = getToken();
       const updateId = props.match.params.id
       const url = updateId ? `/api/notes/${updateId}` : '/api/notes';
       const method = updateId ? 'PUT' : 'POST';
@@ -60,7 +52,6 @@ export default function NoteForm (props) {
         method,
         headers: {
           'Content-Type': 'application/json',
-          authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ text: note }),
       });
