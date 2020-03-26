@@ -297,7 +297,7 @@ exports.findUserByID = async (id) => {
 };
 ```
 
-Now, we will use these functions in the get user route. 
+Now, we will use these functions in the get user route. This route is also going to be 
 ```javaScript
 // userRoutes.js
 const { createUser, findUserByEmail, findUserByID } = require('./userController');
