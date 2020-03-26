@@ -4,23 +4,6 @@ To run this project, do the following:
 2. Run `yarn start` or `npm start` to run the front end
 3. In another terminal window, run `node server.js`
 
-<!-- Potential steps: -->
-<!-- Create user models -->
-<!-- Encoporate user models into notes models -->
-<!-- Encorporate user into notes controllers & routes -->
-<!-- create token middleware (and service) -->
-
-<!-- end back end part! -->
-
-<!-- start front end part -->
-<!-- Create global user state in the App.js component -->
-<!-- Add to note creation -->
-<!-- This will control what we show in our front end code -->
-<!-- In Login component, add handleSubmit code. Use a user that already exists (this will include storing tokens in local storage.)-->
-<!-- Add routing to re route to show notes -->
-<!-- In SignUp component, add handleSubmit code -->
-<!-- Add routing -->
-
 ## Backend Code
 This codebase already includes the code needed to create notes. However, we want to associate those notes with specific users and only allow the user that created the note to view it. 
 
