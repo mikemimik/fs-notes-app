@@ -238,7 +238,7 @@ router.route('/login')
   });
 ```
 
-In the above code, we have created a token and then saved this token into a *cookie*. Cookies represent small pieces of data that we can add to user’s web browsers, either through Front End means or from Back End servers. Cookies are key-value stores, so can only store small amounts of data. They are kept in the browser and attached to requests made to the server. This means our client does not have to do any work to store or update this token because the browser will take care of storing the cookie it receives for the client.
+In the above code, we have created a token and then saved this token into a *cookie*. Cookies represent small pieces of data that we can add to user’s web browsers, either through Front End means or from Back End servers. Cookies are key-value stores, so can only store small amounts of data. They are kept in the browser and attached to requests made to the same server they originated from. This means our client does not have to do any work to store or update this token because the browser will take care of storing the cookie it receives for the client.
 
 ## Get user
 Great, we now have the ability for our users to be created and logged in. Finally, we need to create a route that will allow the client to get information about the user that is logged in. The client will provide a token via the cookie. The server will take that token and generate a signature based on the information in the provided token. If that signature matches the signature on the provided token, it will use the user ID saved in the token to retrieve information on the corresponding user.
