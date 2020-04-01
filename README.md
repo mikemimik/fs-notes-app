@@ -15,6 +15,7 @@ In order to do that, we are going to have to implement a few things:
 Let's start by creating the User model and associating it with the already created Note model. To do this, open the `userModel.js` file and add the following code:
 
 ```javaScript
+// api/routes/users/userModel.js
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
@@ -44,13 +45,13 @@ module.exports = mongoose.model('User', userSchema);
 Now, we are going to associate this User model with the Note model since we only want our app to display notes that belong to the user who created them. In the `notesModel.js` file, add the following:
 
 ```javaScript
-// notesModel.js
+// api/routes/notes/notesModel.js
 const notesSchema = new Schema({
-      user: {
-        type: Schema.Types.ObjectId,
-        required: true,
-        ref: 'User',
-    },
+  user: {
+    type: Schema.Types.ObjectId,
+    required: true,
+    ref: 'User',
+  },
     //...
 ```
 
@@ -65,7 +66,7 @@ In order to secure our passwords, we need two things:
 In the `userModel.js` file, add the following code:
 
 ```javaScript
-//userModel.js
+//api/routes/users/userModel.js
 const bcrpyt = require('bcryptjs');
 //...after the userSchema declaration:
 // Pre save function that hashes password:
@@ -95,7 +96,7 @@ userSchema.methods.comparePasswords = function(password) {
 Okay, great! Let's add some functionality that will help us create create users. In the `userController.js` file, add the following code to save a user in the database:
 
 ```javaScript
-// userController.js
+// api/routes.users/userController.js
 exports.createUser = async ({ email, password, firstName, lastName }) => {
   try {
     const newUser = new User({
@@ -117,20 +118,20 @@ When we call the mongoose `save()` method, the `pre save` function we wrote will
 We are also going to create a function to check if the email already exists before saving it in the database. Add the following code to the same file:
 
 ```javaScript
-// userController.js
+// api/routes/users/userController.js
 exports.findUserByEmail = async (email) => {
   try {
     const user = await User.findOne({ email });
     return user;
   } catch (ex) {
     throw ex;
-  }
+  };
 }
 ```
 Let's use these two functions in the route file to create a post route that will allow us to create users. This route has lots of null checks to ensure that the user is providing all of the correct information.
 
 ```javaScript
-// userRoutes.js
+// api/routes/users/userRoutes.js
 const { createUser, findUserByEmail } = require('./userController');
 // ...
 router.route('/')
@@ -172,7 +173,7 @@ router.route('/')
     }
   });
 ```
-Great, we are now able to send a post request with the appropriate fields and save a user with an encrypted password in our database.
+Great, we are now able to send a post request to the server with the appropriate fields and save a user with an encrypted password in our database. The front end is not yet setup to do so, in order to see this working, try it in Insomnia or another HTTP Client.
 
 ## Login route
 Next up, let's create a route to login our users. This is where we will start incorporating code that works with JWT tokens.
@@ -182,7 +183,7 @@ This route will require an `email` and `password`. We will then get a user from 
 Let's first create the logic that handles creating a JWT token if we successfully login the user. We will create a function that takes a user object, converts it to JSON, base64 encodes it and then signs it all in one small line of code. The `sign` method from the `jsonwebtoken` is very powerful. It is doing all of that for us, all we have to do is provide a regular Javascript object. Whatever gets provided to this `sign` method is information that we will later be able to decode and use to understand what user is making a request.
 
 ```javaScript
-// tokenService.js
+// api/tokens/tokenService.js
 const jwt = require('jsonwebtoken');
 // Feel free to make this your own secret phrase
 const KEY = 'secret phrase';
@@ -195,7 +196,7 @@ exports.createToken = (user) => {
 
 Now, we can use this function in our login route. We are also going to use the `comparePassword` function that uses the 'bcrypt' library we wrote earlier:
 ```javaScript
-// userRoutes.js
+// api/routes/users/userRoutes.js
 const { createToken } = require('../../tokens/tokenService');
 //...
 router.route('/login')
@@ -245,7 +246,7 @@ Great, we now have the ability for our users to be created and logged in. Finall
 
 Let's write a function that will check the provided token's signature for authenticity:
 ```javaScript
-// tokenService.js
+// api/tokens/tokenService.js
 exports.verifyToken = async (token) => {
   let user;
   jwt.verify(token, KEY, (err, decoded) => {
@@ -265,7 +266,7 @@ Again, we have a relatively small amount of code doing a lot of work here, the `
 
 We also need a function that looks up a user in the database based on the ID that is provided in the token. In the `userController.js` file, add the following function that takes an ID and looks it up in the database:
 ```javaScript
-// userController.js
+// api/routes/users/userController.js
 exports.findUserByID = async (id) => {
   try {
     const user = await User.findById(id);
@@ -283,12 +284,11 @@ exports.findUserByID = async (id) => {
 
 Now, we will use these functions in the get user route.
 ```javaScript
-// userRoutes.js
+// api/routes/users/userRoutes.js
 const { createUser, findUserByEmail, findUserByID } = require('./userController');
 const { createToken, verifyToken } = require('../../tokens/tokenService');
 //...
-  router
-    .route('/me')
+  router.route('/me')
     .get(async (req, res) => {
 
         const { cookies } = req;
@@ -315,7 +315,7 @@ Some of the code included in this route that pertains to getting token informati
 
 Remove the following code from the route we just created:
 ```javaScript
-// userRoutes.js
+// api/routes/users/userRoutes.js
 // Copy and remove the following code from the /me route:
         const { cookies } = req;
         try {
@@ -328,9 +328,8 @@ Remove the following code from the route we just created:
 ```
 Ensure you replace the `try` block in the `/me` route as well as remove the reference to `userToken` which should be replaced by `req.user.id`, we will find out why in a second! This route should now look like this:
 ```javaScript
-// userRoutes.js
-  router
-    .route('/me')
+// api/routes/users/userRoutes.js
+  router.route('/me')
     .get(async (req, res) => {
       try {
         const user = await findUserByID(req.user.id);
@@ -346,7 +345,7 @@ Ensure you replace the `try` block in the `/me` route as well as remove the refe
 We will now create middleware which will first access the token stored in the cookie and check to ensure it is a valid token. It will then attach the decoded information from the token onto the request object so that all subsequent functions that deal with that request object can access it. In this way we can use this middleware to ensure that a user is logged in because without calling the `/login` route, a client will not have a valid token in their cookie with which to make requests.
 
 ```javaScript
-// middleware/verifyToken.js
+// api/middleware/verifyToken.js
 const { verifyToken } = require('../tokens/tokenService');
 
 exports.verifyToken = async (req, res, next) => {
@@ -370,9 +369,10 @@ exports.verifyToken = async (req, res, next) => {
 ```
 
 Now we need to use the middleware on the routes we want to ensure a user is logged in to access.
-
 ```javaScript
-//userRoutes.js
+//api/routes/users/userRoutes.js
+
+// Replace the previously imported verifyToken function with this import:
 const { verifyToken } = require('../../middleware/verifyToken');
 //...
   router
@@ -386,13 +386,15 @@ We are accessing the value attached to the request object when we call `findUser
 Now we can use the user middleware in the notes routes in order to save notes for a specific user. We will add the middleware in a way that means that all routes created on the notes router will have access to the `req.user` properties as long as the client passes a cookie containing a valid token!
 
 ```javaScript
-//notesRoutes.js
+//api/routes/notes/notesRoutes.js
 const { verifyToken } = require('../../middleware/verifyToken');
 //...
 
 const router = express.Router();
-// middleware
+
+// using middleware
 router.use(verifyToken);
+
 router.route('/')
 ```
 
@@ -400,18 +402,16 @@ Let's use the new `req.user` object in a couple of the routes.
 
 In the `get` request:
 ```javaScript
-// notesRoutes.js
   .get(async (req, res) => {
     const { user } = req;
     try {
       const notes = await getNotesByUser(user.id);
       res.json({ data: notes });
-    //....
+    //...
 ```
 
-In the `post` request:
+In the `post` request in `router.route('/:id')`:
 ```javaScript
-//notesRoutes.js
   .post(async (req, res) => {
     try {
       const { body } = req;
@@ -422,10 +422,10 @@ In the `post` request:
         user: req.user.id,
         text: body.text,
       }
-      //.....
+      //...
 ```
 
-In the `put` request:
+In the `put` request in `router.route('/:id')`:
 ```javaScript
   .put(async (req, res) => {
     try {
@@ -439,7 +439,7 @@ In the `put` request:
         id: params.id,
         user: user.id,
       });
-      //....
+      //...
 ```
 
 Great, now we should have our backend routes working with authenticated users and information being passed back to the client using cookies!
@@ -448,7 +448,7 @@ Great, now we should have our backend routes working with authenticated users an
 We can now create some front end logic to login in our users. We will first create a function that checks with the server to see if a user is already logged in. If no cookie exists in the browser for our app, this request will fail. If a cookie already exists, we will get information back about that user and store it in state.
 
 ```javaScript
-// App.js
+// src/App.js
   async function getUser() {
     try {
       const response = await fetch("/api/users/me");
@@ -474,7 +474,7 @@ There is logic that already exists in the `return` function of our app that hand
 Create a `handleSubmit` function in the `Login` component. This will hit the login route we created with an email and password. If the email and password match a record in the database, the server will respond with a cookie. We do not have to write any code that expressly handles that cookie as modern browsers will store it for us and include it in most requests. 
 
 ```javaScript
-//Login.js
+// src/components/Login.js
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
@@ -500,7 +500,7 @@ Create a `handleSubmit` function in the `Login` component. This will hit the log
 Finally, we will add similar logic to a `handleSubmit` function in the `SignUp` component:
 
 ```javaScript
-//SignUp.js
+// src/components/SignUp.js
   async function signUpUser() {
     try {
       const body = {

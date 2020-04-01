@@ -48,7 +48,7 @@ export default function SignInSide(props) {
   const [ email, updateEmail ] = useState('');
   const [ password, updatePassword ] = useState('');
   const [ error, updateError ] = useState('');
-
+  const handleSubmit = () => {}
   return (
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
