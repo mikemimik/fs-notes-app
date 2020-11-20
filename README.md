@@ -229,7 +229,7 @@ router.route('/login')
 
       const token = createToken({ id: user._id });
       // save token in the cookie
-      res.cookies('token', token);
+      res.cookie('token', token);
       // send an empty response back
       res.status(200).send({});
     } catch (ex) {
