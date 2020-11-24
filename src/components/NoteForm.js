@@ -29,7 +29,7 @@ export default function NoteForm (props) {
       const response = await fetch(`/api/notes/${id}`);
       const json = await response.json();
       if (!response.ok) {
-        throw new Error(data.message);
+        throw new Error(json.message);
       }
     
       setNote(json.data.text);
