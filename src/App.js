@@ -11,7 +11,7 @@ import Main from "./components/Main";
 import SignUp from "./components/SignUp";
 
 function App() {
-  const [user, updateUser] = useState(undefined);
+  const [user, setUser] = useState(undefined);
   const getUser = () => {}
   return (
     <div className="App">
@@ -35,7 +35,7 @@ function App() {
               if (user) {
                 return <Redirect to="/" />;
               }
-              return <SignUp getUser={getUser} updateUser={updateUser} {...props} />;
+              return <SignUp getUser={getUser} updateUser={setUser} {...props} />;
             }}
           />
           <Route

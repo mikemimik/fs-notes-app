@@ -25,14 +25,14 @@ const useStyles = makeStyles(theme => ({
 
 export default function NoteList(props) {
   const classes = useStyles();
-  const [ notes, updateNotes ] = useState([]);
+  const [ notes, setNotes ] = useState([]);
 
   async function getNotes() {
     try {
       const response = await fetch('/api/notes');
     
-      const data = await response.json();
-      updateNotes(data.data);
+      const json = await response.json();
+      setNotes(json.data);
     } catch (err) {
       console.log(err);
     }

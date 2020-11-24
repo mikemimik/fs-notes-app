@@ -45,9 +45,9 @@ const useStyles = makeStyles(theme => ({
 
 export default function SignInSide(props) {
   const classes = useStyles();
-  const [ email, updateEmail ] = useState('');
-  const [ password, updatePassword ] = useState('');
-  const [ error, updateError ] = useState('');
+  const [ email, setEmail ] = useState('');
+  const [ password, setPassword ] = useState('');
+  const [ error, setError ] = useState('');
   const handleSubmit = () => {}
   return (
     <Grid container component="main" className={classes.root}>
@@ -74,7 +74,7 @@ export default function SignInSide(props) {
               autoComplete="email"
               autoFocus
               value={email}
-              onChange={(e) => { updateEmail(e.target.value); }}
+              onChange={(e) => { setEmail(e.target.value); }}
             />
             <TextField
               variant="outlined"
@@ -87,7 +87,7 @@ export default function SignInSide(props) {
               id="password"
               autoComplete="current-password"
               value={password}
-              onChange={(e) => { updatePassword(e.target.value); }}
+              onChange={(e) => { setPassword(e.target.value); }}
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}

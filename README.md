@@ -452,15 +452,15 @@ We can now create some front end logic to login in our users. We will first crea
   async function getUser() {
     try {
       const response = await fetch("/api/users/me");
-      const data = await response.json();
+      const json = await response.json();
       if (!response.ok) {
         throw new Error(data.message);
       }
 
-      updateUser(data.data);
+      setUser(json.data);
     } catch (err) {
       console.log("error?");
-      updateUser(undefined);
+      setUser(undefined);
       console.log({ err });
     }
   }

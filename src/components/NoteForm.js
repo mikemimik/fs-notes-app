@@ -21,18 +21,18 @@ const useStyles = makeStyles(theme => ({
 
 export default function NoteForm (props) {
   const classes = useStyles()
-  const [ note, updateNote ] = useState('');
-  const [ error, updateError ] = useState(undefined);
+  const [ note, setNote ] = useState('');
+  const [ error, setError ] = useState(undefined);
 
   async function getNoteById(id) {
     try {
       const response = await fetch(`/api/notes/${id}`);
-      const data = await response.json();
+      const json = await response.json();
       if (!response.ok) {
         throw new Error(data.message);
       }
     
-      updateNote(data.data.text);
+      setNote(json.data.text);
     } catch (err) {
       console.log(err);
     }
@@ -62,7 +62,7 @@ export default function NoteForm (props) {
 
       props.history.push('/');
     } catch (err) {
-      updateError(err.message);
+      setError(err.message);
     }
   }
 
@@ -84,7 +84,7 @@ export default function NoteForm (props) {
             className={classes.textField}
             margin='normal'
             value={note}
-            onChange={(e) => {updateNote(e.target.value);}}
+            onChange={(e) => {setNote(e.target.value);}}
           />
         </div>
         <Button
