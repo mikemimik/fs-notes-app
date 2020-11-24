@@ -492,7 +492,7 @@ Create a `handleSubmit` function in the `Login` component. This will hit the log
 
       props.getUser();
     } catch (err) {
-      updateError(err.message);
+      setError(err.message);
     }
   };
 ```
