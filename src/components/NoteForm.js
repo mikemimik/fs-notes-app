@@ -39,7 +39,9 @@ export default function NoteForm (props) {
   }
 
   useEffect(() => {
-    getNoteById(props.match.params.id);
+    if (props.match.params.id) {
+      getNoteById(props.match.params.id);
+    }
   }, [props.match.params.id]);
 
   async function handleSubmit(e) {
