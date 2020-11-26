@@ -33,7 +33,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function Album() {
+export default function Main() {
   const classes = useStyles();
 
   return (
