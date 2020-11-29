@@ -449,7 +449,10 @@ We can now create some front end logic to login in our users. We will first crea
 
 ```javaScript
 // src/App.js
-  async function getUser() {
+//....
+import { useEffect, useState, useCallback } from 'react';
+
+  const getUser = useCallback(async function() {
     try {
       const response = await fetch("/api/users/me");
       const json = await response.json();
@@ -463,10 +466,10 @@ We can now create some front end logic to login in our users. We will first crea
       setUser(undefined);
       console.log({ err });
     }
-  }
+  }, [])
   useEffect(() => {
     getUser();
-  }, []);
+  }, [getUser]);
 ```
 
 There is logic that already exists in the `return` function of our app that handles routing for us. If a user exists, that user will be navigated to the `'/'` route of our front end and therefore allowed to view their notes. Otherwise, the user is shown the login page.
