@@ -39,9 +39,36 @@ export default function SignUp(props) {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
 
+  const createUser = async () => {
+    try {
+      const response = await fetch('/api/users/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, firstName, lastName }),
+      });
+
+      if (!response.ok) {
+        console.error('bad user signup');
+        props.setToken(undefined);
+      }
+
+      const data = await response.json();
+      const { access_token } = data;
+      props.setToken(access_token);
+      props.getUser();
+    } catch (err) {
+      props.setToken(undefined);
+      console.error(err);
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-  }
+    createUser();
+  };
+
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
