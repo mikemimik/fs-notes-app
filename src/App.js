@@ -12,7 +12,29 @@ import SignUp from "./components/SignUp";
 
 function App() {
   const [user, setUser] = useState(undefined);
-  const getUser = () => {}
+  const [token, setToken] = useState(undefined);
+
+  const getUser = async () => {
+    try {
+      const response = await fetch('/api/users/userinfo', {
+        header: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        console.error('bad user fetch');
+        setUser(undefined);
+      }
+
+      const userData = await response.json();
+      setUser(userData);
+    } catch (err) {
+      console.error(err);
+      setUser(undefined);
+    }
+  }
+
   return (
     <div className="App">
       <Router>
@@ -35,7 +57,7 @@ function App() {
               if (user) {
                 return <Redirect to="/" />;
               }
-              return <SignUp getUser={getUser} updateUser={setUser} {...props} />;
+              return <SignUp getUser={getUser} setToken={setToken} {...props} />;
             }}
           />
           <Route
