@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -14,26 +14,31 @@ function App() {
   const [user, setUser] = useState(undefined);
   const [token, setToken] = useState(undefined);
 
-  const getUser = async () => {
-    try {
-      const response = await fetch('/api/users/userinfo', {
-        header: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  useEffect(() => {
+    const getUser = async () => {
+      try {
+        const response = await fetch('/api/users/userinfo', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-      if (!response.ok) {
-        console.error('bad user fetch');
-        setUser(undefined);
+        if (!response.ok) {
+          console.error('bad user fetch');
+          setUser(undefined);
+        }
+
+        const userData = await response.json();
+        setUser(userData);
+      } catch (err) {
+        console.error(err);
       }
-
-      const userData = await response.json();
-      setUser(userData);
-    } catch (err) {
-      console.error(err);
-      setUser(undefined);
     }
-  }
+
+    if (token) {
+      getUser();
+    }
+  }, [token]);
 
   return (
     <div className="App">
@@ -47,7 +52,7 @@ function App() {
                 return <Redirect to="/" />;
               }
 
-              return <Login getUser={getUser} {...props} />;
+              return <Login setToken={setToken} {...props} />;
             }}
           />
           <Route
@@ -57,7 +62,7 @@ function App() {
               if (user) {
                 return <Redirect to="/" />;
               }
-              return <SignUp getUser={getUser} setToken={setToken} {...props} />;
+              return <SignUp setToken={setToken} {...props} />;
             }}
           />
           <Route
