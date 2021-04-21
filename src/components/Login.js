@@ -43,12 +43,41 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function SignInSide(props) {
+export default function Login({ setToken }) {
   const classes = useStyles();
+
   const [ email, setEmail ] = useState('');
   const [ password, setPassword ] = useState('');
   const [ error, setError ] = useState('');
-  const handleSubmit = () => {}
+
+  const loginUser = async () => {
+    try {
+      const response = await fetch('/api/users/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        console.error('bad user login');
+      }
+
+      const data = await response.json();
+      const { access_token } = data;
+
+      setToken(access_token);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    loginUser();
+  }
+
   return (
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
