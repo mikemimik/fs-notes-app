@@ -32,8 +32,9 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function SignUp(props) {
+export default function SignUp({ setToken }) {
   const classes = useStyles();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -51,15 +52,13 @@ export default function SignUp(props) {
 
       if (!response.ok) {
         console.error('bad user signup');
-        props.setToken(undefined);
       }
 
       const data = await response.json();
       const { access_token } = data;
-      props.setToken(access_token);
-      props.getUser();
+
+      setToken(access_token);
     } catch (err) {
-      props.setToken(undefined);
       console.error(err);
     }
   };
