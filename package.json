@@ -20,7 +20,7 @@
     "react-scripts": "3.4.1"
   },
   "scripts": {
-    "start:api": "nodemon --watch api --watch server.js  server.js",
+    "start:api": "nodemon --watch api --watch api/server.js api/server.js",
     "start:client": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
