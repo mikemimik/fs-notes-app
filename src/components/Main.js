@@ -33,7 +33,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function Main() {
+export default function Main(props) {
   const classes = useStyles();
 
   return (
@@ -49,7 +49,13 @@ export default function Main() {
       </AppBar>
       <main>
         <Switch>
-          <Route exact path="/" component={NoteList}/>
+          <Route
+            exact
+            path="/"
+            render={(renderProps) => {
+              return <NoteList {...renderProps} {...props} />
+            }}
+          />
           <Route path="/note/edit/:id" component={NoteForm} />
           <Route path="/note/create" component={NoteForm} />
         </Switch>

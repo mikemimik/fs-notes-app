@@ -1,6 +1,10 @@
 const express = require('express');
 
-const { createUser, findUserById } = require('./userController');
+const {
+  createUser,
+  loginUser,
+  findUserById,
+} = require('./userController');
 const { verifyToken } = require('../../middleware/verifyToken');
 const { createToken } = require('../../tokens/tokenService');
 

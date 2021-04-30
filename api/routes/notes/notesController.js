@@ -3,9 +3,25 @@ const Notes = require('./notesModel');
 exports.getNotesByUser = async (userID) => {
   try {
     const notes = await Notes
-      .find({ user: userID })
-      .populate({ path: 'user', select: 'firstName lastName' });
-    return notes;
+      .find({ userId: userID })
+      .populate({ path: 'userId', select: 'firstName lastName' });
+
+
+    return notes.map((note) => {
+      const { createdAt, _id, userId, text } = note;
+
+      const updatedNote = {
+        createdAt,
+        _id,
+        user: {
+          firstName: userId.firstName,
+          lastName: userId.lastName,
+        },
+        text,
+      };
+
+      return updatedNote;
+    });
   } catch (err) {
     throw err;
   }

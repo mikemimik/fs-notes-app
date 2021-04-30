@@ -5,12 +5,16 @@ import {
   Switch,
   Redirect
 } from "react-router-dom";
+// import { useAuth0 } from "@auth0/auth0-react";
 
 import Login from "./components/Login";
 import Main from "./components/Main";
 import SignUp from "./components/SignUp";
 
 function App() {
+  // Auth0 OAuth Example
+  // const { user, isAuthenticated, isLoading } = useAuth0();
+
   const [user, setUser] = useState(undefined);
   const [token, setToken] = useState(undefined);
 
@@ -52,6 +56,8 @@ function App() {
                 return <Redirect to="/" />;
               }
 
+              // Auth0 OAuth Example
+              // return <Login {...props} />;
               return <Login setToken={setToken} {...props} />;
             }}
           />
@@ -62,6 +68,9 @@ function App() {
               if (user) {
                 return <Redirect to="/" />;
               }
+
+              // Auth0 OAuth Example
+              // return <SignUp {...props} />;
               return <SignUp setToken={setToken} {...props} />;
             }}
           />
@@ -69,10 +78,10 @@ function App() {
             path="/"
             render={props => {
               if (!user) {
-                return <Redirect to="/login" />;
+                return <Redirect to='/signup' />
               }
 
-              return <Main {...props} />;
+              return <Main token={token} {...props} />;
             }}
           />
         </Switch>

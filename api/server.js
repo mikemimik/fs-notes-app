@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 
 const UserModel = require('./routes/users/userModel');
+const NoteModel = require('./routes/notes/notesModel');
+
 const userRouter = require('./routes/users/userRoutes');
 const notesRouter = require('./routes/notes/notesRoutes');
 
@@ -33,6 +35,7 @@ mongoose
   .then(async () => {
 
     await UserModel.deleteMany();
+    await NoteModel.deleteMany();
 
     const userDocument = new UserModel({
       "email":"mike@mikecorp.ca",
@@ -41,6 +44,37 @@ mongoose
       "lastName":"Perrotte",
     });
     await userDocument.save();
+    const userDocument2 = new UserModel({
+      email: "rylie@mikecorp.ca",
+      password: "password123",
+      firstName: "Rylie",
+      lastName: "Smith",
+    });
+    await userDocument2.save();
+
+    const noteDoc1 = new NoteModel({
+      userId: userDocument._id,
+      text: 'remember to pickup the ketchup',
+    });
+    await noteDoc1.save();
+
+    const noteDoc2 = new NoteModel({
+      userId: userDocument._id,
+      text: 'remember to pickup the ketchup',
+    });
+    await noteDoc2.save();
+
+    const noteDoc3 = new NoteModel({
+      userId: userDocument._id,
+      text: 'remember to pickup the ketchup',
+    });
+    await noteDoc3.save();
+
+    const noteDoc4 = new NoteModel({
+      userId: userDocument2._id,
+      text: 'remember to pickup the ketchup',
+    });
+    await noteDoc4.save();
 
     app.listen(PORT, () => {
       console.log(`server is running on port ${PORT}`);

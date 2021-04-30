@@ -21,16 +21,18 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-// const cards = [1, 2, 3];
-
 export default function NoteList(props) {
   const classes = useStyles();
   const [ notes, setNotes ] = useState([]);
 
   async function getNotes() {
     try {
-      const response = await fetch('/api/notes');
-    
+      const response = await fetch('/api/notes', {
+        headers: {
+          Authorization: `Bearer ${props.token}`,
+        },
+      });
+
       const json = await response.json();
       setNotes(json.data);
     } catch (err) {
@@ -42,6 +44,7 @@ export default function NoteList(props) {
     getNotes();
   }, []);
   console.log(notes);
+
   return (
     <div>
       <div className={classes.heroContent}>
@@ -80,7 +83,7 @@ export default function NoteList(props) {
                   key={note._id}
                   onClick={() => { props.history.push(`/note/edit/${note._id}`) }}
                 >
-                  <NoteCard  
+                  <NoteCard
                     text={note.text}
                     user={note.user}
                   />

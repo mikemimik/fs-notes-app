@@ -11,6 +11,7 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router-dom';
+// import { useAuth0 } from "@auth0/auth0-react";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -46,9 +47,13 @@ const useStyles = makeStyles(theme => ({
 export default function Login({ setToken }) {
   const classes = useStyles();
 
+  // Auth0 OAuth Example
+  // const { loginWithRedirect } = useAuth0();
+
   const [ email, setEmail ] = useState('');
   const [ password, setPassword ] = useState('');
   const [ error, setError ] = useState('');
+
 
   const loginUser = async () => {
     try {
@@ -131,6 +136,18 @@ export default function Login({ setToken }) {
             >
               Sign In
             </Button>
+
+            {/* Auth0 OAuth Example */}
+            {/* <Button */}
+            {/*   type="submit" */}
+            {/*   fullWidth */}
+            {/*   variant="contained" */}
+            {/*   color="primary" */}
+            {/*   className={classes.submit} */}
+            {/*   onClick={() => loginWithRedirect()} */}
+            {/* > */}
+            {/*   Sign In */}
+            {/* </Button> */}
             <Grid container>
               <Grid item>
                 <Link to="/signup">

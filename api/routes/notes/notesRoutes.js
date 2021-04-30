@@ -1,11 +1,25 @@
 const express = require('express')
-const { getNotesByUser, createNote, getNoteById, updateNoteById } = require('./notesController');
+const {
+  getNotesByUser,
+  createNote,
+  getNoteById,
+  updateNoteById,
+} = require('./notesController');
+const { verifyToken: requiresAuth } = require('../../middleware/verifyToken');
 
 const router = express.Router();
+
+router.use(requiresAuth);
+
 router.route('/')
   .get(async (req, res) => {
     try {
-      res.json({ data: [] });
+      const { id } = req.user;
+      const notes = await getNotesByUser(id);
+      console.log('notes:', notes);
+
+
+      res.json({ data: notes });
     } catch (err) {
       console.log(err);
       res.status(500).json({ message: 'internal server error' });
