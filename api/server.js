@@ -23,10 +23,11 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../build/index.html'));
 });
 
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
+const DB_URL = process.env.DB_URL || 'mongodb://localhost:27017/note-app';
 
 mongoose
-  .connect('mongodb://localhost:27017/note-app',
+  .connect(DB_URL,
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
