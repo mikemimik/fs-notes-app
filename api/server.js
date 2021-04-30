@@ -21,6 +21,8 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../build/index.html'));
 });
 
+const PORT = 4000;
+
 mongoose
   .connect('mongodb://localhost:27017/note-app',
     {
@@ -32,8 +34,16 @@ mongoose
 
     await UserModel.deleteMany();
 
-    app.listen('8080', () => {
-      console.log('server is running on port 8080');
+    const userDocument = new UserModel({
+      "email":"mike@mikecorp.ca",
+      "password":"password123",
+      "firstName":"Mike",
+      "lastName":"Perrotte",
+    });
+    await userDocument.save();
+
+    app.listen(PORT, () => {
+      console.log(`server is running on port ${PORT}`);
     });
   })
   .catch((err) => console.log('wat:', err));
